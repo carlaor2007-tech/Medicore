@@ -428,6 +428,7 @@ function renderFamDashboard() {
       <div class="r-text">${inf.diag}</div>
       <div style="margin-top:8px;font-size:.8rem;color:var(--gray-600)">💊 ${inf.med} · Próxima revisión: ${inf.next}</div>
       <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="toggleSimpleExplain(this)">🗣️ Explicar en sencillo</button>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="downloadReportPDF(this)">📄 Descargar PDF</button>
     </div>`).join('') : '<p style="font-size:.85rem;color:var(--gray-400)">Sin informes registrados todavía.</p>';
 }
 
@@ -443,6 +444,7 @@ function renderInformes() {
       <div class="r-text">${inf.diag}</div>
       <div style="margin-top:8px;font-size:.8rem;color:var(--gray-600)">💊 ${inf.med} · Próxima revisión: ${inf.next}</div>
       <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="toggleSimpleExplain(this)">🗣️ Explicar en sencillo</button>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="downloadReportPDF(this)">📄 Descargar PDF</button>
     </div>`).join('');
 }
 function autoFillPatient(v) {
@@ -991,6 +993,52 @@ function exportChatPDF() {
   });
   doc.save('conversacion-medicore.pdf');
   toast('Conversación exportada a PDF');
+}
+
+// ======== DESCARGAR INFORME MÉDICO EN PDF ========
+function downloadReportPDF(btn) {
+  if (typeof window.jspdf === 'undefined') { toast('No se pudo cargar el generador de PDF.', 'error'); return; }
+  const card = btn.closest('.report-card');
+  const titulo = card.querySelector('.r-title')?.textContent || 'Informe médico';
+  const fecha = card.querySelector('.r-date')?.textContent || '';
+  const doctorLine = card.querySelector('.r-doctor')?.textContent || '';
+  const texto = (card.querySelector('.r-text')?.dataset.original) || card.querySelector('.r-text')?.textContent || '';
+  const medLine = Array.from(card.querySelectorAll('div')).find(d => d.textContent.includes('💊') && d.textContent.includes('revisión'))?.textContent || '';
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text('MediCore — Informe médico', 14, 18);
+  doc.setFontSize(13);
+  doc.text(titulo, 14, 30);
+  doc.setFontSize(10);
+  doc.text(fecha, 14, 37);
+  let y = 47;
+  if (doctorLine) {
+    doc.setFontSize(11);
+    doc.splitTextToSize(doctorLine.replace(/^👤\s*/, '').replace(/^🩺\s*/, ''), 180).forEach(line => { doc.text(line, 14, y); y += 7; });
+    y += 3;
+  }
+  doc.setFontSize(11);
+  doc.splitTextToSize(texto, 180).forEach(line => {
+    if (y > 280) { doc.addPage(); y = 20; }
+    doc.text(line, 14, y);
+    y += 7;
+  });
+  if (medLine) {
+    y += 5;
+    doc.setFontSize(10);
+    doc.splitTextToSize(medLine.trim(), 180).forEach(line => {
+      if (y > 280) { doc.addPage(); y = 20; }
+      doc.text(line, 14, y);
+      y += 7;
+    });
+  }
+  doc.setFontSize(8);
+  doc.text('Generado desde MediCore · ' + new Date().toLocaleString('es-ES'), 14, 290);
+  const nombreArchivo = 'informe-' + titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '.pdf';
+  doc.save(nombreArchivo);
+  toast('Informe descargado en PDF');
 }
 
 // ======== INIT ========
