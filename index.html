@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCore — Sistema Hospitalario Inteligente</title>
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ===== LANDING ===== -->
+<div id="landing">
+  <nav class="nav">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      MediCore
+    </div>
+    <div class="nav-btns">
+      <button class="accessibility-toggle" onclick="toggleLargeText()" title="Texto grande (accesibilidad)">A+</button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Modo oscuro">🌙</button>
+      <button class="btn btn-outline" onclick="openLogin('paciente')">Soy Paciente</button>
+      <button class="btn btn-primary" onclick="openLogin('medico')">Soy Médico</button>
+    </div>
+  </nav>
+  <div class="hero">
+    <div class="hero-badge">🏥 Sistema Hospitalario Digital — Innovación 2026</div>
+    <h1>La gestión médica del <span>futuro</span>,<br>disponible hoy</h1>
+    <p>Fichas digitales, citas online e informes inteligentes. Todo en un sistema seguro que conecta médicos y pacientes.</p>
+    <div class="hero-cards">
+      <div class="access-card" onclick="openLogin('medico')">
+        <div class="card-icon blue">🩺</div>
+        <h3>Panel Médico</h3>
+        <p>Accede a fichas de pacientes, informes, citas del día y estadísticas en tiempo real.</p>
+        <button class="btn btn-primary" style="width:100%">Entrar como Médico</button>
+      </div>
+      <div class="access-card green" onclick="openLogin('paciente')">
+        <div class="card-icon green">👤</div>
+        <h3>Portal del Paciente</h3>
+        <p>Pide cita, consulta tus informes y gestiona tu historial médico de forma segura.</p>
+        <button class="btn btn-green" style="width:100%">Entrar como Paciente</button>
+      </div>
+    </div>
+    <div class="features">
+      <div class="feat"><div class="feat-dot" style="background:var(--blue)"></div>Identificador único PAC-ID</div>
+      <div class="feat"><div class="feat-dot" style="background:var(--green)"></div>Datos cifrados y privados</div>
+      <div class="feat"><div class="feat-dot" style="background:var(--amber)"></div>Chatbot asistente 24h</div>
+      <div class="feat"><div class="feat-dot" style="background:var(--purple)"></div>Actualización en tiempo real</div>
+    </div>
+  </div>
+
+  <!-- ===== ASISTENTE PROTAGONISTA ===== -->
+  <section class="assistant-section">
+    <div class="assistant-glow"></div>
+    <div class="assistant-character" onclick="toggleChat()" title="Haz clic para hablar conmigo">
+      <div class="assistant-bubble">
+        ¡Hola! 👋 Soy la <strong>Dra. MediCore IA</strong><br>¿Tienes dudas? Pregúntame lo que sea, te ayudo encantada.
+      </div>
+      <svg viewBox="0 0 200 220" width="220" height="240" class="assistant-svg">
+        <defs>
+          <radialGradient id="bigFaceGrad" cx="35%" cy="28%" r="75%">
+            <stop offset="0%" stop-color="#FFE8D6"/>
+            <stop offset="100%" stop-color="#F2B98C"/>
+          </radialGradient>
+          <radialGradient id="bigCoatGrad" cx="30%" cy="15%" r="85%">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="100%" stop-color="#D6E4F0"/>
+          </radialGradient>
+          <radialGradient id="bigHairGrad" cx="35%" cy="22%" r="80%">
+            <stop offset="0%" stop-color="#6B4423"/>
+            <stop offset="100%" stop-color="#3D2614"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="100" cy="205" rx="55" ry="10" fill="rgba(37,99,235,.12)"/>
+        <path d="M55 215 Q100 235 145 215 L138 130 Q100 148 62 130 Z" fill="url(#bigCoatGrad)" stroke="#BFD3E8" stroke-width="1.5"/>
+        <circle cx="100" cy="95" r="62" fill="url(#bigCoatGrad)"/>
+        <ellipse cx="100" cy="78" rx="38" ry="42" fill="url(#bigFaceGrad)"/>
+        <path d="M60 72 Q60 30 100 26 Q140 30 140 72 Q140 50 100 46 Q60 50 60 72Z" fill="url(#bigHairGrad)"/>
+        <circle cx="84" cy="78" r="4.2" fill="#3D2614"/>
+        <circle cx="116" cy="78" r="4.2" fill="#3D2614"/>
+        <path d="M86 96 Q100 104 114 96" stroke="#A85D3A" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="74" cy="86" r="6" fill="#F7A8A8" opacity=".5"/>
+        <circle cx="126" cy="86" r="6" fill="#F7A8A8" opacity=".5"/>
+        <path d="M76 116 Q100 124 124 116 L128 130 Q100 138 72 130 Z" fill="#E8F0FB"/>
+        <circle cx="100" cy="123" r="6" fill="none" stroke="#7FA8D6" stroke-width="2.4"/>
+        <path d="M60 200 Q55 175 70 165" stroke="#7FA8D6" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M140 200 Q145 175 130 165" stroke="#7FA8D6" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="70" cy="163" r="6" fill="#E8F0FB" stroke="#7FA8D6" stroke-width="2"/>
+        <circle cx="130" cy="163" r="6" fill="#E8F0FB" stroke="#7FA8D6" stroke-width="2"/>
+      </svg>
+      <div class="assistant-pulse-ring"></div>
+      <div class="assistant-cta">💬 Hablar con la doctora</div>
+    </div>
+  </section>
+
+  <!-- ===== INFO: QUÉ PUEDES HACER AQUÍ ===== -->
+  <section class="info-section">
+    <h2 class="info-title">¿Para qué sirve MediCore?</h2>
+    <p class="info-sub">Una plataforma pensada para que médicos y pacientes se comuniquen de forma fácil, rápida y segura.</p>
+    <div class="info-grid-3">
+      <div class="info-block">
+        <div class="info-block-icon">🩺</div>
+        <h3>Si eres médico</h3>
+        <p>Consulta la ficha completa de cada paciente, revisa su historial y medicación, escribe informes médicos nuevos, gestiona las citas del día y consulta estadísticas con gráficas sobre tu actividad.</p>
+      </div>
+      <div class="info-block">
+        <div class="info-block-icon">👤</div>
+        <h3>Si eres paciente</h3>
+        <p>Pide cita con el médico que necesites sin llamar por teléfono, consulta tus informes médicos cuando quieras, revisa tu medicación activa y mantén tu perfil con tus datos siempre actualizado.</p>
+      </div>
+      <div class="info-block">
+        <div class="info-block-icon">🤖</div>
+        <h3>El asistente virtual</h3>
+        <p>La Dra. MediCore IA está disponible las 24 horas para explicarte paso a paso cómo usar la web, responderte por escrito o por voz, y ayudarte aunque no tengas experiencia con ordenadores.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== MODAL LOGIN ===== -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLogin()">✕</button>
+    <h2>Iniciar sesión</h2>
+    <p>Accede a tu panel seguro de MediCore</p>
+    <div class="role-toggle">
+      <button class="role-btn active" id="roleBtn-medico" onclick="switchRole('medico')">🩺 Médico</button>
+      <button class="role-btn" id="roleBtn-paciente" onclick="switchRole('paciente')">👤 Paciente</button>
+    </div>
+    <div class="demo-hint" id="demoHint">
+      <strong>Demo médico:</strong> ana@hospital.com / 1234<br>
+      <strong>Demo médico 2:</strong> luis@hospital.com / 1234
+    </div>
+    <div class="form-group">
+      <label>Correo electrónico</label>
+      <input type="email" id="loginEmail" placeholder="tu@correo.com">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="loginPass" placeholder="••••••">
+    </div>
+    <div class="error-msg" id="loginError">❌ Credenciales incorrectas. Revisa el demo.</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">Entrar →</button>
+  </div>
+</div>
+
+<!-- ===== MODAL DETALLE FARMACIA ===== -->
+<div class="overlay" id="pharmacyOverlay">
+  <div class="modal" style="width:480px;padding:0;overflow:hidden">
+    <button class="modal-close" style="z-index:2" onclick="closePharmacyDetail()">✕</button>
+    <div id="pharmacyDetailIconBox" class="pharm-icon-box detail">
+      <div class="pharm-cross"></div>
+      <div class="pharm-pill p1"></div>
+      <div class="pharm-pill p2"></div>
+      <div class="pharm-pill p3"></div>
+    </div>
+    <div style="padding:28px">
+      <h2 id="pharmacyDetailName" style="margin-bottom:2px"></h2>
+      <p id="pharmacyDetailSponsor" style="display:none;color:var(--amber);font-weight:600;font-size:.82rem;margin-bottom:10px">★ Patrocinado</p>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:.92rem;color:var(--gray-600);margin-bottom:20px">
+        <div>📍 <span id="pharmacyDetailAddress"></span> · <strong id="pharmacyDetailDistance"></strong></div>
+        <div>🕒 <span id="pharmacyDetailHorario"></span></div>
+        <div>📞 <span id="pharmacyDetailTel"></span></div>
+      </div>
+      <a id="pharmacyDetailMapsBtn" class="btn btn-primary" style="width:100%;justify-content:center" target="_blank" rel="noopener">🧭 Cómo llegar (Google Maps)</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP SHELL ===== -->
+<div id="app">
+  <nav class="app-nav">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <div class="logo">
+        <div class="logo-icon" style="width:30px;height:30px">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        MediCore
+      </div>
+    </div>
+    <div class="nav-user">
+      <button class="accessibility-toggle" onclick="toggleLargeText()" title="Texto grande (accesibilidad)">A+</button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="Modo oscuro">🌙</button>
+      <div class="user-info">
+        <div class="user-name" id="navUserName"></div>
+        <div class="user-role" id="navUserRole"></div>
+      </div>
+      <div class="user-avatar avatar-blue" id="navAvatar"></div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+    </div>
+  </nav>
+  <div class="app-body">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebarMobile()"></div>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+
+      <!-- ====== DOCTOR: DASHBOARD ====== -->
+      <div class="page" id="page-doc-dashboard">
+        <div class="page-header">
+          <h2 id="docWelcome">Buenos días, Dr. García 👋</h2>
+          <p id="docDate">Domingo, 28 de junio de 2026</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card blue"><div class="stat-label">Pacientes hoy</div><div class="stat-value" style="color:var(--blue)">4</div><div class="stat-sub">2 pendientes</div></div>
+          <div class="stat-card green"><div class="stat-label">Total pacientes</div><div class="stat-value" style="color:var(--green)">12</div><div class="stat-sub">3 nuevos este mes</div></div>
+          <div class="stat-card amber"><div class="stat-label">Informes emitidos</div><div class="stat-value" style="color:var(--amber)">7</div><div class="stat-sub">esta semana</div></div>
+          <div class="stat-card purple"><div class="stat-label">Citas pendientes</div><div class="stat-value" style="color:var(--purple)">2</div><div class="stat-sub">próximos 7 días</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">📅 Citas de hoy</div><div class="card-sub">28 Jun 2026</div></div>
+              <button class="btn btn-ghost btn-sm" onclick="goTo('doc-citas')">Ver todas</button>
+            </div>
+            <div class="appt-item">
+              <div class="appt-time">09:00</div>
+              <div class="appt-info"><div class="appt-name">María López</div><div class="appt-detail">Revisión general · PAC-00101</div></div>
+              <span class="tag tag-green">Confirmada</span>
+            </div>
+            <div class="appt-item">
+              <div class="appt-time">10:30</div>
+              <div class="appt-info"><div class="appt-name">Carlos Ruiz</div><div class="appt-detail">Análisis · PAC-00102</div></div>
+              <span class="tag tag-green">Confirmada</span>
+            </div>
+            <div class="appt-item">
+              <div class="appt-time">12:00</div>
+              <div class="appt-info"><div class="appt-name">Elena Martín</div><div class="appt-detail">Seguimiento · PAC-00103</div></div>
+              <span class="tag tag-amber">Pendiente</span>
+            </div>
+            <div class="appt-item">
+              <div class="appt-time">16:00</div>
+              <div class="appt-info"><div class="appt-name">Pedro Sánchez</div><div class="appt-detail">Primera visita · PAC-00104</div></div>
+              <span class="tag tag-amber">Pendiente</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">👥 Pacientes recientes</div></div>
+              <button class="btn btn-ghost btn-sm" onclick="goTo('doc-pacientes')">Ver todos</button>
+            </div>
+            <div class="appt-item">
+              <div class="user-avatar avatar-blue" style="width:38px;height:38px;font-size:.85rem;flex-shrink:0">ML</div>
+              <div class="appt-info"><div class="appt-name">María López</div><div class="appt-detail">PAC-00101 · 34 años · Hipertensión</div></div>
+              <button class="btn btn-ghost btn-sm" onclick="openPatient('PAC-00101')">Ver</button>
+            </div>
+            <div class="appt-item">
+              <div class="user-avatar" style="background:var(--purple);width:38px;height:38px;font-size:.85rem;flex-shrink:0">CR</div>
+              <div class="appt-info"><div class="appt-name">Carlos Ruiz</div><div class="appt-detail">PAC-00102 · 52 años · Diabetes T2</div></div>
+              <button class="btn btn-ghost btn-sm" onclick="openPatient('PAC-00102')">Ver</button>
+            </div>
+            <div class="appt-item">
+              <div class="user-avatar" style="background:var(--green);width:38px;height:38px;font-size:.85rem;flex-shrink:0">EM</div>
+              <div class="appt-info"><div class="appt-name">Elena Martín</div><div class="appt-detail">PAC-00103 · 28 años · Anemia</div></div>
+              <button class="btn btn-ghost btn-sm" onclick="openPatient('PAC-00103')">Ver</button>
+            </div>
+            <div class="appt-item">
+              <div class="user-avatar" style="background:var(--amber);width:38px;height:38px;font-size:.85rem;flex-shrink:0">PS</div>
+              <div class="appt-info"><div class="appt-name">Pedro Sánchez</div><div class="appt-detail">PAC-00104 · 67 años · Cardio</div></div>
+              <button class="btn btn-ghost btn-sm" onclick="openPatient('PAC-00104')">Ver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== DOCTOR: PACIENTES ====== -->
+      <div class="page" id="page-doc-pacientes">
+        <div class="page-header">
+          <h2>👥 Lista de Pacientes</h2>
+          <p>Busca por nombre o ID de paciente</p>
+        </div>
+        <div class="search-bar">
+          <input class="search-input" placeholder="🔍 Buscar por nombre, PAC-ID o diagnóstico..." oninput="filterPatients(this.value)" id="searchPat">
+          <button class="btn btn-primary">Nuevo paciente</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table id="patTable">
+              <thead>
+                <tr><th>Paciente</th><th>PAC-ID</th><th>Edad</th><th>Diagnóstico</th><th>Última visita</th><th>Estado</th><th></th></tr>
+              </thead>
+              <tbody id="patTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== DOCTOR: FICHA PACIENTE ====== -->
+      <div class="page" id="page-doc-ficha">
+        <button class="btn btn-ghost btn-sm" style="margin-bottom:16px" onclick="goTo('doc-pacientes')">← Volver</button>
+        <div class="patient-header" id="fichaHeader"></div>
+        <div class="info-grid" id="fichaInfo"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">📋 Historial médico</div></div>
+            <div class="timeline" id="fichaHistorial"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">💊 Medicación activa</div>
+              <span class="tag tag-green">Al día</span>
+            </div>
+            <div id="fichaMedicacion"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== DOCTOR: CITAS ====== -->
+      <div class="page" id="page-doc-citas">
+        <div class="page-header"><h2>📅 Gestión de Citas</h2><p>Todas las citas programadas</p></div>
+        <div class="role-toggle" id="citasFilterTabs" style="max-width:480px;margin-bottom:16px">
+          <button class="role-btn active" data-filter="hoy" onclick="setCitasFilter('hoy')">Hoy</button>
+          <button class="role-btn" data-filter="proximas" onclick="setCitasFilter('proximas')">Próximas</button>
+          <button class="role-btn" data-filter="historico" onclick="setCitasFilter('historico')">Histórico</button>
+          <button class="role-btn" data-filter="todas" onclick="setCitasFilter('todas')">Todas</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>PAC-ID</th><th>Motivo</th><th>Estado</th><th>Acción</th></tr></thead>
+              <tbody id="citasTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== DOCTOR: INFORMES ====== -->
+      <div class="page" id="page-doc-informes">
+        <div class="page-header">
+          <h2>📋 Informes Médicos</h2>
+          <p>Todos los informes emitidos por ti</p>
+        </div>
+        <button class="btn btn-primary" style="margin-bottom:20px" onclick="goTo('doc-nuevo-informe')">+ Nuevo informe</button>
+        <div id="listaInformes"></div>
+      </div>
+
+      <!-- ====== DOCTOR: NUEVO INFORME ====== -->
+      <div class="page" id="page-doc-nuevo-informe">
+        <button class="btn btn-ghost btn-sm" style="margin-bottom:16px" onclick="goTo('doc-informes')">← Volver</button>
+        <div class="page-header"><h2>✏️ Nuevo Informe Médico</h2></div>
+        <div class="card" style="max-width:680px">
+          <div class="form-section">
+            <h4>Datos del paciente</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>PAC-ID del paciente</label>
+                <input type="text" id="infPacId" placeholder="PAC-00101" oninput="autoFillPatient(this.value)">
+              </div>
+              <div class="form-group">
+                <label>Nombre (auto)</label>
+                <input type="text" id="infPacNombre" placeholder="Se rellena automáticamente" readonly style="background:var(--gray-50)">
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <h4>Informe</h4>
+            <div class="form-group">
+              <label>Tipo de informe</label>
+              <select id="infTipo">
+                <option>Revisión general</option>
+                <option>Análisis de sangre</option>
+                <option>Diagnóstico</option>
+                <option>Alta médica</option>
+                <option>Derivación a especialista</option>
+                <option>Seguimiento crónico</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Diagnóstico / Observaciones</label>
+              <textarea id="infDiag" rows="4" placeholder="Describa el estado del paciente, hallazgos relevantes..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Medicación prescrita</label>
+              <textarea id="infMed" rows="2" placeholder="Medicamento · Dosis · Duración"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Próxima revisión</label>
+              <input type="date" id="infFecha">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="guardarInforme()">💾 Guardar informe</button>
+            <button class="btn btn-ghost" onclick="goTo('doc-informes')">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== DOCTOR: ESTADÍSTICAS ====== -->
+      <div class="page" id="page-doc-stats">
+        <div class="page-header"><h2>📈 Estadísticas</h2><p>Visión general de la actividad médica</p></div>
+        <div class="grid-2" style="margin-bottom:20px">
+          <div class="chart-card"><div class="card-title" style="margin-bottom:14px">Citas por semana</div><canvas id="chartCitas"></canvas></div>
+          <div class="chart-card"><div class="card-title" style="margin-bottom:14px">Diagnósticos más frecuentes</div><canvas id="chartDiag"></canvas></div>
+        </div>
+        <div class="chart-card"><div class="card-title" style="margin-bottom:14px">Evolución de pacientes nuevos</div><canvas id="chartEvolucion"></canvas></div>
+      </div>
+
+      <!-- ====== PACIENTE: DASHBOARD ====== -->
+      <div class="page" id="page-pac-dashboard">
+        <div class="page-header">
+          <h2 id="pacWelcome">Hola, María 👋</h2>
+          <p id="pacId"></p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card blue"><div class="stat-label">Próxima cita</div><div class="stat-value" style="color:var(--blue);font-size:1.2rem">28 Jun</div><div class="stat-sub">09:00 · Dr. García</div></div>
+          <div class="stat-card green"><div class="stat-label">Mis informes</div><div class="stat-value" style="color:var(--green)">3</div><div class="stat-sub">último: 15 Jun</div></div>
+          <div class="stat-card amber"><div class="stat-label">Citas este año</div><div class="stat-value" style="color:var(--amber)">7</div><div class="stat-sub">todas atendidas</div></div>
+          <div class="stat-card purple"><div class="stat-label">Medicación activa</div><div class="stat-value" style="color:var(--purple)">2</div><div class="stat-sub">tratamientos</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">📅 Mis próximas citas</div><button class="btn btn-ghost btn-sm" onclick="goTo('pac-cita')">Pedir cita</button></div>
+            <div class="appt-item">
+              <div class="appt-time">28 Jun<br>09:00</div>
+              <div class="appt-info"><div class="appt-name">Dr. Ana García</div><div class="appt-detail">Revisión general · Medicina General</div></div>
+              <span class="tag tag-green">Confirmada</span>
+            </div>
+            <div class="appt-item">
+              <div class="appt-time">30 Jun<br>11:00</div>
+              <div class="appt-info"><div class="appt-name">Dr. Ana García</div><div class="appt-detail">Revisión tensión · Cardiología</div></div>
+              <span class="tag tag-blue">Programada</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">💊 Mis medicamentos</div></div>
+            <div id="pacMedsList" style="display:flex;flex-direction:column;gap:14px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== PACIENTE: FARMACIAS CERCANAS ====== -->
+      <div class="page" id="page-pac-farmacias">
+        <button class="btn btn-ghost btn-sm" style="margin-bottom:16px" onclick="goTo('pac-dashboard')">← Volver</button>
+        <div class="page-header">
+          <h2>📍 Farmacias cercanas</h2>
+          <p id="pharmacyFinderSub">Farmacias donde puedes comprar tu medicación</p>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <button class="btn btn-primary" onclick="locateUserForPharmacies()" id="locateBtn">📡 Usar mi ubicación</button>
+          <span style="font-size:.8rem;color:var(--gray-400);margin-left:10px">o mira las farmacias de ejemplo más abajo</span>
+        </div>
+        <div id="pharmacyList"></div>
+      </div>
+
+      <!-- ====== PACIENTE: PEDIR CITA ====== -->
+      <div class="page" id="page-pac-cita">
+        <div class="page-header"><h2>📅 Pedir Cita</h2><p>Selecciona especialidad, médico y horario</p></div>
+        <div class="card" style="max-width:640px">
+          <div class="form-section">
+            <h4>Especialidad y médico</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Especialidad</label>
+                <select id="citaEsp" onchange="updateDoctores()">
+                  <option value="">— Selecciona —</option>
+                  <option>Medicina General</option>
+                  <option>Cardiología</option>
+                  <option>Traumatología</option>
+                  <option>Neurología</option>
+                  <option>Dermatología</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Médico</label>
+                <select id="citaMedico">
+                  <option value="">— Primero elige especialidad —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <h4>Fecha y hora</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Fecha preferida</label>
+                <input type="date" id="citaFecha">
+              </div>
+              <div class="form-group">
+                <label>Hora</label>
+                <select id="citaHora">
+                  <option>08:00</option><option>08:30</option><option>09:00</option>
+                  <option>09:30</option><option>10:00</option><option>10:30</option>
+                  <option>11:00</option><option>11:30</option><option>12:00</option>
+                  <option>16:00</option><option>16:30</option><option>17:00</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Motivo de la consulta</label>
+              <textarea id="citaMotivo" rows="3" placeholder="Describe brevemente el motivo de la consulta..."></textarea>
+            </div>
+          </div>
+          <button class="btn btn-green" onclick="pedirCita()" style="justify-content:center">✅ Confirmar cita</button>
+          <div id="citaSuccess" style="display:none;margin-top:14px;padding:14px;background:var(--green-light);border-radius:var(--radius-sm);color:#059669;font-size:.88rem">
+            ✅ <strong>¡Cita confirmada!</strong> Recibirás un recordatorio antes de la cita.
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== PACIENTE: INFORMES ====== -->
+      <div class="page" id="page-pac-informes">
+        <div class="page-header"><h2>📋 Mis Informes Médicos</h2><p>Solo tú puedes ver estos documentos</p></div>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--blue-light);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;font-size:.85rem;color:var(--blue)">
+          🔒 <span>Tus informes están cifrados y son privados. Solo accesibles con tu cuenta.</span>
+        </div>
+        <div class="report-card">
+          <div class="r-header"><div class="r-title">Revisión general anual</div><div class="r-date">15 Jun 2026</div></div>
+          <div class="r-doctor">🩺 Dr. Ana García · Medicina General</div>
+          <div class="r-text">Paciente en buen estado general. Tensión arterial controlada con medicación actual (Enalapril 10mg). Se recomienda continuar con el tratamiento y revisar en 3 meses. Peso estable. Analítica dentro de parámetros normales.</div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <span class="tag tag-green">Normal</span>
+            <button class="btn btn-ghost btn-sm" onclick="speakReport(this)">🔊 Leer en voz alta</button>
+            <button class="btn btn-ghost btn-sm">📄 Descargar PDF</button>
+          </div>
+        </div>
+        <div class="report-card" style="border-left-color:var(--amber)">
+          <div class="r-header"><div class="r-title">Análisis de sangre completo</div><div class="r-date">02 May 2026</div></div>
+          <div class="r-doctor">🩺 Dr. Luis Martín · Medicina Interna</div>
+          <div class="r-text">Hemograma: valores dentro de la normalidad. Colesterol LDL ligeramente elevado (142 mg/dL). Se recomienda dieta baja en grasas saturadas. Glucosa en ayunas: 94 mg/dL. Revisión en 6 meses.</div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <span class="tag tag-amber">Seguimiento</span>
+            <button class="btn btn-ghost btn-sm" onclick="speakReport(this)">🔊 Leer en voz alta</button>
+            <button class="btn btn-ghost btn-sm">📄 Descargar PDF</button>
+          </div>
+        </div>
+        <div class="report-card" style="border-left-color:var(--green)">
+          <div class="r-header"><div class="r-title">Consulta tensión arterial</div><div class="r-date">10 Mar 2026</div></div>
+          <div class="r-doctor">🩺 Dr. Ana García · Cardiología</div>
+          <div class="r-text">Tensión: 128/82 mmHg. Mejoría notable respecto a última revisión. Se mantiene dosis de Enalapril. ECG sin alteraciones. Próximo control en 3 meses.</div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <span class="tag tag-green">Mejoría</span>
+            <button class="btn btn-ghost btn-sm" onclick="speakReport(this)">🔊 Leer en voz alta</button>
+            <button class="btn btn-ghost btn-sm">📄 Descargar PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== PACIENTE: PERFIL ====== -->
+      <div class="page" id="page-pac-perfil">
+        <div class="page-header"><h2>👤 Mi Perfil</h2></div>
+        <div class="card" style="max-width:560px">
+          <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--gray-200)">
+            <div class="user-avatar avatar-blue" style="width:72px;height:72px;font-size:1.5rem">ML</div>
+            <div>
+              <h3 style="font-size:1.2rem">María López García</h3>
+              <div class="pac-id" style="display:inline-block;margin-top:6px">PAC-00101</div>
+            </div>
+          </div>
+          <div class="info-grid" style="grid-template-columns:1fr 1fr">
+            <div class="info-item"><div class="label">Fecha nacimiento</div><div class="value">14 Mar 1992</div></div>
+            <div class="info-item"><div class="label">Edad</div><div class="value">34 años</div></div>
+            <div class="info-item"><div class="label">Grupo sanguíneo</div><div class="value">A+</div></div>
+            <div class="info-item"><div class="label">Alergias</div><div class="value">Penicilina</div></div>
+            <div class="info-item"><div class="label">Médico asignado</div><div class="value">Dr. Ana García</div></div>
+            <div class="info-item"><div class="label">Teléfono</div><div class="value">+34 612 345 678</div></div>
+          </div>
+          <div style="margin-top:8px;padding:12px;background:var(--red-light);border-radius:var(--radius-sm);font-size:.82rem;color:var(--red)">
+            ⚠️ <strong>Alerta médica:</strong> Paciente alérgica a la Penicilina. Registrado en ficha.
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== TOASTS ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== CHATBOT ===== -->
+<button class="chat-fab" onclick="toggleChat()" id="chatFab" title="Asistente MediCore">💬</button>
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <div class="chat-avatar-3d" id="chatAvatar3d">
+      <svg viewBox="0 0 100 100" width="48" height="48">
+        <defs>
+          <radialGradient id="faceGrad" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#FFE8D6"/>
+            <stop offset="100%" stop-color="#F2B98C"/>
+          </radialGradient>
+          <radialGradient id="coatGrad" cx="35%" cy="20%" r="80%">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="100%" stop-color="#D6E4F0"/>
+          </radialGradient>
+          <radialGradient id="hairGrad" cx="35%" cy="25%" r="80%">
+            <stop offset="0%" stop-color="#6B4423"/>
+            <stop offset="100%" stop-color="#3D2614"/>
+          </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48" fill="url(#coatGrad)"/>
+        <path d="M30 78 Q50 95 70 78 L66 60 Q50 68 34 60 Z" fill="url(#coatGrad)" stroke="#BFD3E8" stroke-width="1"/>
+        <ellipse cx="50" cy="42" rx="20" ry="22" fill="url(#faceGrad)"/>
+        <path d="M30 38 Q30 18 50 16 Q70 18 70 38 Q70 28 50 26 Q30 28 30 38Z" fill="url(#hairGrad)"/>
+        <circle cx="42" cy="42" r="2.4" fill="#3D2614"/>
+        <circle cx="58" cy="42" r="2.4" fill="#3D2614"/>
+        <path d="M44 52 Q50 56 56 52" stroke="#A85D3A" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M40 60 Q50 64 60 60 L62 66 Q50 70 38 66 Z" fill="#E8F0FB"/>
+        <circle cx="50" cy="63" r="3" fill="none" stroke="#7FA8D6" stroke-width="1.6"/>
+      </svg>
+    </div>
+    <div class="chat-header-text">
+      <h4>Dra. MediCore IA</h4>
+      <p>Tu asistente médico personal</p>
+      <div class="chat-online"><div class="chat-online-dot"></div> En línea ahora</div>
+    </div>
+    <button class="chat-voice-toggle" onclick="exportChatPDF()" title="Exportar conversación a PDF">📄</button>
+    <button class="chat-voice-toggle" id="voiceToggleBtn" onclick="toggleVoice()" title="Activar/desactivar voz">🔊</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-chips" id="chatChips">
+    <button class="chat-chip" onclick="quickMsg('¿Cómo pido una cita?')">¿Cómo pido cita?</button>
+    <button class="chat-chip" onclick="quickMsg('¿Qué servicios ofrece el hospital?')">Servicios</button>
+    <button class="chat-chip" onclick="quickMsg('¿Qué es el PAC-ID?')">¿Qué es el PAC-ID?</button>
+  </div>
+  <div class="chat-input-area">
+    <button class="chat-mic" id="micBtn" onclick="toggleMic()" title="Hablar">🎤</button>
+    <input class="chat-input" id="chatInput" placeholder="Escribe o habla tu pregunta..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
