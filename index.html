@@ -22,6 +22,7 @@
     <div class="nav-btns">
       <button class="accessibility-toggle" onclick="toggleLargeText()" title="Texto grande (accesibilidad)">A+</button>
       <button class="theme-toggle" onclick="toggleTheme()" title="Modo oscuro">🌙</button>
+      <button class="btn" style="background:var(--red-light);color:var(--red)" onclick="openSosLookup()" title="Acceso de emergencia sin necesidad de iniciar sesión">🆘 Emergencias</button>
       <button class="btn btn-outline" onclick="openLogin('paciente')">Soy Paciente</button>
       <button class="btn btn-primary" onclick="openLogin('medico')">Soy Médico</button>
     </div>
@@ -167,6 +168,41 @@
         <div>📞 <span id="pharmacyDetailTel"></span></div>
       </div>
       <a id="pharmacyDetailMapsBtn" class="btn btn-primary" style="width:100%;justify-content:center" target="_blank" rel="noopener">🧭 Cómo llegar (Google Maps)</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL FICHA SOS DE EMERGENCIA (sin necesidad de iniciar sesión) ===== -->
+<div class="overlay" id="sosOverlay">
+  <div class="modal" id="sosModal" style="width:440px">
+    <button class="modal-close" onclick="closeSosLookup()">✕</button>
+    <div id="sosLookupView">
+      <h2>🆘 Ficha de emergencia</h2>
+      <p>Introduce el código SOS del paciente para ver al instante grupo sanguíneo, alergias y medicación activa. Pensado para sanitarios o familiares en caso de emergencia, sin necesidad de contraseña.</p>
+      <div class="form-group">
+        <label>Código SOS</label>
+        <input type="text" id="sosCodeInput" placeholder="Ej. SOS-7421" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')lookupSos()">
+      </div>
+      <div class="error-msg" id="sosError">❌ Código no encontrado. Revisa que esté bien escrito.</div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="lookupSos()">Ver ficha de emergencia →</button>
+      <p style="font-size:.72rem;color:var(--gray-400);margin-top:14px;margin-bottom:0">⚠️ Demo académica: en un producto real este acceso tendría protecciones adicionales (límite de intentos, registro de quién consulta, información parcial).</p>
+    </div>
+    <div id="sosResultView" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;background:var(--red-light);color:var(--red);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:18px;font-size:.82rem;font-weight:600">
+        🆘 Ficha de emergencia — solo lectura
+      </div>
+      <h2 id="sosNombre" style="margin-bottom:4px"></h2>
+      <p id="sosEdadGenero" style="color:var(--gray-600);margin-bottom:18px"></p>
+      <div class="info-grid" style="grid-template-columns:1fr 1fr;margin-bottom:18px">
+        <div class="info-item"><div class="label">Grupo sanguíneo</div><div class="value" id="sosBlood" style="font-size:1.3rem;font-weight:800;color:var(--red)"></div></div>
+        <div class="info-item"><div class="label">Alergias</div><div class="value" id="sosAlergias"></div></div>
+      </div>
+      <div style="margin-bottom:18px">
+        <div class="label" style="font-size:.82rem;font-weight:600;color:var(--gray-600);margin-bottom:8px">💊 Medicación activa</div>
+        <div id="sosMeds"></div>
+      </div>
+      <div style="font-size:.85rem;color:var(--gray-600)">👨‍⚕️ Médico asignado: <strong id="sosMedico"></strong></div>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:18px" onclick="closeSosLookup()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -562,6 +598,11 @@
           <div style="margin-top:8px;padding:12px;background:var(--red-light);border-radius:var(--radius-sm);font-size:.82rem;color:var(--red)">
             ⚠️ <strong>Alerta médica:</strong> Paciente alérgica a la Penicilina. Registrado en ficha.
           </div>
+        </div>
+        <div class="card" style="max-width:560px;margin-top:20px;border:1.5px dashed var(--red)">
+          <div class="card-header"><div class="card-title">🆘 Tu código de emergencia</div></div>
+          <p style="font-size:.85rem;color:var(--gray-600);margin-bottom:12px">Comparte este código con un familiar o llévalo encima (por ejemplo en una pulsera o la cartera). Permite ver tu grupo sanguíneo, alergias y medicación activa sin contraseña, en caso de emergencia.</p>
+          <div class="pac-id" id="pacSosCode" style="font-size:1.1rem;display:inline-block"></div>
         </div>
       </div>
 

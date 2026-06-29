@@ -10,7 +10,7 @@ const USERS = {
 
 // ======== DATOS POR DEFECTO (semilla inicial para localStorage) ========
 const DEFAULT_PATIENTS = [
-  { id:'PAC-00101', name:'María López García',  age:34, gender:'Mujer',  blood:'A+',  diag:'Hipertensión arterial',   lastVisit:'15 Jun 2026', status:'activo',     alergias:'Penicilina', medico:'Dr. Ana García',  initials:'ML', color:'var(--blue)',
+  { id:'PAC-00101', name:'María López García',  age:34, gender:'Mujer',  blood:'A+',  diag:'Hipertensión arterial',   lastVisit:'15 Jun 2026', status:'activo',     alergias:'Penicilina', medico:'Dr. Ana García',  initials:'ML', color:'var(--blue)', sosCode:'SOS-7421',
     meds:['Enalapril 10mg — 1/día en ayunas','Lorazepam 1mg — si ansiedad'],
     historial:[
       {dot:'blue',icon:'🩺',title:'Revisión general',date:'15 Jun 2026',text:'Tensión controlada. Analítica normal. Continúa tratamiento.'},
@@ -18,28 +18,28 @@ const DEFAULT_PATIENTS = [
       {dot:'amber',icon:'❤️',title:'ECG cardíaco',date:'10 Mar 2026',text:'Sin alteraciones. Tensión: 128/82 mmHg.'},
     ]
   },
-  { id:'PAC-00102', name:'Carlos Ruiz Fernández', age:52, gender:'Hombre', blood:'O+', diag:'Diabetes tipo 2',         lastVisit:'20 Jun 2026', status:'seguimiento', alergias:'Ninguna',    medico:'Dr. Ana García',  initials:'CR', color:'var(--purple)',
+  { id:'PAC-00102', name:'Carlos Ruiz Fernández', age:52, gender:'Hombre', blood:'O+', diag:'Diabetes tipo 2',         lastVisit:'20 Jun 2026', status:'seguimiento', alergias:'Ninguna',    medico:'Dr. Ana García',  initials:'CR', color:'var(--purple)', sosCode:'SOS-3098',
     meds:['Metformina 850mg — 2/día con comidas','Linagliptina 5mg — 1/día'],
     historial:[
       {dot:'amber',icon:'🩸',title:'Control glucémico',date:'20 Jun 2026',text:'HbA1c: 7.2%. Dentro del objetivo terapéutico.'},
       {dot:'blue',icon:'🩺',title:'Revisión diabetes',date:'01 Abr 2026',text:'Se ajusta dosis de Metformina. Buen cumplimiento.'},
     ]
   },
-  { id:'PAC-00103', name:'Elena Martín Soto',    age:28, gender:'Mujer',  blood:'B-',  diag:'Anemia ferropénica',      lastVisit:'10 Jun 2026', status:'activo',     alergias:'Ibuprofeno', medico:'Dr. Luis Martín', initials:'EM', color:'var(--green)',
+  { id:'PAC-00103', name:'Elena Martín Soto',    age:28, gender:'Mujer',  blood:'B-',  diag:'Anemia ferropénica',      lastVisit:'10 Jun 2026', status:'activo',     alergias:'Ibuprofeno', medico:'Dr. Luis Martín', initials:'EM', color:'var(--green)', sosCode:'SOS-5512',
     meds:['Sulfato ferroso 325mg — 1/día','Vitamina C 500mg — con hierro'],
     historial:[
       {dot:'green',icon:'💊',title:'Inicio tratamiento hierro',date:'10 Jun 2026',text:'Hemoglobina: 9.8 g/dL. Inicia suplementación.'},
       {dot:'blue',icon:'🩺',title:'Primera consulta',date:'20 May 2026',text:'Cansancio, palidez. Se solicita analítica completa.'},
     ]
   },
-  { id:'PAC-00104', name:'Pedro Sánchez Mora',   age:67, gender:'Hombre', blood:'AB+', diag:'Insuficiencia cardíaca',  lastVisit:'05 Jun 2026', status:'seguimiento', alergias:'AAS',        medico:'Dr. Ana García',  initials:'PS', color:'var(--amber)',
+  { id:'PAC-00104', name:'Pedro Sánchez Mora',   age:67, gender:'Hombre', blood:'AB+', diag:'Insuficiencia cardíaca',  lastVisit:'05 Jun 2026', status:'seguimiento', alergias:'AAS',        medico:'Dr. Ana García',  initials:'PS', color:'var(--amber)', sosCode:'SOS-8847',
     meds:['Bisoprolol 5mg — 1/día','Furosemida 40mg — 1/día mañana','Espironolactona 25mg — 1/día'],
     historial:[
       {dot:'amber',icon:'❤️',title:'Ecocardiograma',date:'05 Jun 2026',text:'FE: 42%. Mejora leve respecto a control anterior.'},
       {dot:'blue',icon:'🩺',title:'Revisión mensual',date:'05 May 2026',text:'Edemas reducidos. Peso estable. Sin descompensaciones.'},
     ]
   },
-  { id:'PAC-00105', name:'Laura Gómez Díaz',     age:41, gender:'Mujer',  blood:'A-',  diag:'Lumbalgia crónica',       lastVisit:'22 May 2026', status:'activo',     alergias:'Ninguna',     medico:'Dr. Luis Martín', initials:'LG', color:'#EC4899',
+  { id:'PAC-00105', name:'Laura Gómez Díaz',     age:41, gender:'Mujer',  blood:'A-',  diag:'Lumbalgia crónica',       lastVisit:'22 May 2026', status:'activo',     alergias:'Ninguna',     medico:'Dr. Luis Martín', initials:'LG', color:'#EC4899', sosCode:'SOS-2266',
     meds:['Diclofenaco 50mg — si dolor agudo','Omeprazol 20mg — protector gástrico'],
     historial:[
       {dot:'blue',icon:'🦴',title:'RX lumbar',date:'22 May 2026',text:'Artrosis L4-L5 moderada. Se recomienda fisioterapia.'},

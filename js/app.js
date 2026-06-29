@@ -39,6 +39,33 @@ function openLogin(role) {
   document.getElementById('loginOverlay').classList.add('show');
 }
 function closeLogin() { document.getElementById('loginOverlay').classList.remove('show'); }
+
+// ======== FICHA SOS DE EMERGENCIA (sin login) ========
+function openSosLookup() {
+  document.getElementById('sosLookupView').style.display = 'block';
+  document.getElementById('sosResultView').style.display = 'none';
+  document.getElementById('sosError').style.display = 'none';
+  document.getElementById('sosCodeInput').value = '';
+  document.getElementById('sosOverlay').classList.add('show');
+}
+function closeSosLookup() { document.getElementById('sosOverlay').classList.remove('show'); }
+function lookupSos() {
+  const code = document.getElementById('sosCodeInput').value.trim().toUpperCase();
+  const p = PATIENTS.find(x => x.sosCode === code);
+  const err = document.getElementById('sosError');
+  if (!p) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  document.getElementById('sosNombre').textContent = p.name;
+  document.getElementById('sosEdadGenero').textContent = `${p.age} años · ${p.gender}`;
+  document.getElementById('sosBlood').textContent = p.blood;
+  document.getElementById('sosAlergias').textContent = p.alergias;
+  document.getElementById('sosMeds').innerHTML = p.meds.length
+    ? p.meds.map(m => `<div style="font-size:.85rem;padding:6px 0;border-bottom:1px solid var(--gray-100)">💊 ${m}</div>`).join('')
+    : '<div style="font-size:.85rem;color:var(--gray-400)">Sin medicación activa registrada.</div>';
+  document.getElementById('sosMedico').textContent = p.medico;
+  document.getElementById('sosLookupView').style.display = 'none';
+  document.getElementById('sosResultView').style.display = 'block';
+}
 function switchRole(role) {
   currentRole = role;
   document.querySelectorAll('#loginOverlay .role-btn').forEach(b => b.classList.remove('active'));
@@ -106,6 +133,7 @@ function launchApp() {
     const p = PATIENTS.find(x => x.id === currentUser.pacId);
     document.getElementById('pacWelcome').textContent = 'Hola, ' + currentUser.name.split(' ')[0] + ' 👋';
     document.getElementById('pacId').textContent = 'Tu identificador: ' + currentUser.pacId + ' · ' + (p ? p.diag : '');
+    document.getElementById('pacSosCode').textContent = p ? p.sosCode : '—';
     renderPatientMeds();
     goTo('pac-dashboard');
     requestNotificationPermission();
