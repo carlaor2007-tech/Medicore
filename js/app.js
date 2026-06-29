@@ -281,16 +281,79 @@ function openPatient(id) {
   goTo('doc-ficha');
 }
 
+// ======== INTERACCIONES MEDICAMENTOSAS ========
+function findMedInteractions(medsList) {
+  const lower = medsList.map(m => m.toLowerCase());
+  return INTERACCIONES_CONOCIDAS.filter(rule =>
+    lower.some(m => m.includes(rule.a)) && lower.some(m => m.includes(rule.b))
+  );
+}
+function interactionsBannerHtml(medsList) {
+  const found = findMedInteractions(medsList);
+  if (!found.length) return '';
+  const nivelColor = { alta:'var(--red)', media:'var(--amber)', baja:'var(--gray-600)' };
+  return `<div style="margin-bottom:14px;padding:12px 14px;background:var(--red-light);border-radius:var(--radius-sm)">
+    <div style="font-weight:700;font-size:.85rem;color:var(--red);margin-bottom:6px">⚠️ Posibles interacciones detectadas</div>
+    ${found.map(f => `<div style="font-size:.8rem;color:${nivelColor[f.nivel]};margin-bottom:4px">• ${f.texto}</div>`).join('')}
+  </div>`;
+}
+
+// ======== INFORMES EN LENGUAJE SENCILLO ========
+// Traductor básico por patrones (no es IA real): sustituye jerga médica frecuente
+// y números de tensión/analítica por frases llanas. Pensado como ayuda de accesibilidad,
+// no como sustituto de la explicación del médico.
+const GLOSARIO_SENCILLO = [
+  [/hba1c/gi, 'tu nivel de azúcar en sangre a largo plazo (HbA1c)'],
+  [/colesterol ldl/gi, 'tu nivel de colesterol "malo" (LDL)'],
+  [/colesterol(?!\s*"malo")/gi, 'el colesterol (la grasa en la sangre)'],
+  [/glucosa en ayunas/gi, 'tu nivel de azúcar en sangre en ayunas'],
+  [/glucémic[oa]/gi, 'relacionado con el azúcar en sangre'],
+  [/hemoglobina/gi, 'la hemoglobina (lo que lleva el oxígeno en la sangre)'],
+  [/anemia ferropénica/gi, 'anemia por falta de hierro'],
+  [/analítica/gi, 'el análisis de sangre'],
+  [/ecg|electrocardiograma/gi, 'el electrocardiograma (la prueba del corazón)'],
+  [/ecocardiograma/gi, 'la ecografía del corazón'],
+  [/edemas/gi, 'la hinchazón'],
+  [/artrosis/gi, 'el desgaste en las articulaciones'],
+  [/protector gástrico/gi, 'el medicamento para proteger el estómago'],
+  [/descompensaciones/gi, 'empeoramientos'],
+  [/cumplimiento/gi, 'que sigue bien el tratamiento'],
+  [/fe:\s*(\d+)%/gi, 'el corazón bombea con un $1% de eficacia'],
+  [/(\d+)\/(\d+)\s*mmhg/gi, 'tensión $1 sobre $2'],
+  [/(\d+(\.\d+)?)\s*mg\/dl/gi, '$1 (en una unidad de laboratorio)'],
+];
+function simplifyText(text) {
+  let out = text;
+  for (const [pattern, replacement] of GLOSARIO_SENCILLO) out = out.replace(pattern, replacement);
+  return '🗣️ En palabras sencillas: ' + out;
+}
+function toggleSimpleExplain(btn) {
+  const card = btn.closest('.report-card');
+  const textEl = card.querySelector('.r-text');
+  if (!textEl.dataset.original) textEl.dataset.original = textEl.textContent;
+  if (btn.dataset.simple === '1') {
+    textEl.textContent = textEl.dataset.original;
+    btn.textContent = '🗣️ Explicar en sencillo';
+    btn.dataset.simple = '0';
+  } else {
+    textEl.textContent = simplifyText(textEl.dataset.original);
+    btn.textContent = '↩️ Ver texto original';
+    btn.dataset.simple = '1';
+  }
+}
+
 // ======== MEDICACIÓN (vista médico: editar/borrar) ========
 let currentFichaPacId = null;
 function renderFichaMedicacion(p) {
-  document.getElementById('fichaMedicacion').innerHTML = p.meds.length ? p.meds.map((m, i) => `
+  const banner = interactionsBannerHtml(p.meds);
+  const lista = p.meds.length ? p.meds.map((m, i) => `
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100)">
       <span style="font-size:1.2rem">💊</span>
       <span style="font-size:.88rem;flex:1">${m}</span>
       <button class="btn btn-ghost btn-sm" onclick="editMed(${i})" title="Editar">✏️</button>
       <button class="btn btn-ghost btn-sm" onclick="deleteMed(${i})" title="Eliminar">🗑️</button>
     </div>`).join('') : '<p style="font-size:.85rem;color:var(--gray-400)">Sin medicación activa.</p>';
+  document.getElementById('fichaMedicacion').innerHTML = banner + lista;
 }
 function editMed(i) {
   const p = PATIENTS.find(x => x.id === currentFichaPacId);
@@ -323,7 +386,7 @@ function renderPatientMeds() {
   const p = PATIENTS.find(x => x.id === currentUser.pacId);
   const meds = p ? p.meds : [];
   if (!meds.length) { container.innerHTML = '<p style="font-size:.85rem;color:var(--gray-400)">No tienes medicación activa registrada.</p>'; return; }
-  container.innerHTML = meds.map(m => `
+  container.innerHTML = interactionsBannerHtml(meds) + meds.map(m => `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div style="font-weight:600;font-size:.9rem">${m}</div>
@@ -347,14 +410,16 @@ function renderFamDashboard() {
     : '<p style="font-size:.85rem;color:var(--gray-400)">No hay citas programadas.</p>';
 
   const medsContainer = document.getElementById('famMedsList');
-  medsContainer.innerHTML = p.meds.length ? p.meds.map(m => `
+  medsContainer.innerHTML = p.meds.length
+    ? interactionsBannerHtml(p.meds) + p.meds.map(m => `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div style="font-weight:600;font-size:.9rem">${m}</div>
         <span class="tag tag-green">Activo</span>
       </div>
       <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="openPharmacyFinder('${m.replace(/'/g, "\\'")}')">📍 Buscar dónde comprarlo</button>
-    </div>`).join('') : '<p style="font-size:.85rem;color:var(--gray-400)">Sin medicación activa registrada.</p>';
+    </div>`).join('')
+    : '<p style="font-size:.85rem;color:var(--gray-400)">Sin medicación activa registrada.</p>';
 
   const informesPaciente = userInformes.filter(inf => inf.pacId === pacId);
   document.getElementById('famInformesList').innerHTML = informesPaciente.length ? informesPaciente.map(inf => `
@@ -362,6 +427,7 @@ function renderFamDashboard() {
       <div class="r-header"><div class="r-title">${inf.tipo}</div><div class="r-date">${inf.fecha}</div></div>
       <div class="r-text">${inf.diag}</div>
       <div style="margin-top:8px;font-size:.8rem;color:var(--gray-600)">💊 ${inf.med} · Próxima revisión: ${inf.next}</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="toggleSimpleExplain(this)">🗣️ Explicar en sencillo</button>
     </div>`).join('') : '<p style="font-size:.85rem;color:var(--gray-400)">Sin informes registrados todavía.</p>';
 }
 
@@ -376,6 +442,7 @@ function renderInformes() {
       <div class="r-doctor">👤 ${inf.pacNombre} · <span class="pac-id">${inf.pacId}</span></div>
       <div class="r-text">${inf.diag}</div>
       <div style="margin-top:8px;font-size:.8rem;color:var(--gray-600)">💊 ${inf.med} · Próxima revisión: ${inf.next}</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="toggleSimpleExplain(this)">🗣️ Explicar en sencillo</button>
     </div>`).join('');
 }
 function autoFillPatient(v) {
@@ -408,6 +475,9 @@ function guardarInforme() {
   if (nuevasMeds) msg += ' · medicación añadida a la ficha del paciente';
   if (repetidas) msg += ` · ${repetidas} medicación${repetidas > 1 ? 'es' : ''} ya existía${repetidas > 1 ? 'n' : ''} y no se duplicó${repetidas > 1 ? 'aron' : ''}`;
   toast(msg);
+  if (nuevasMeds) {
+    findMedInteractions(p.meds).forEach(int => toast('⚠️ ' + int.texto, 'error'));
+  }
   document.getElementById('infPacId').value = '';
   document.getElementById('infPacNombre').value = '';
   document.getElementById('infDiag').value = '';

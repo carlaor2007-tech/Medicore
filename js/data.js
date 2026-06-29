@@ -64,6 +64,18 @@ const PHARMACIES = [
   { name:'Farmacia Clerigues Grau', address:'Calle Valencia, 13, Vila-real',          lat:39.9312370, lng:-0.1059763, horario:'09:00–14:00, 17:00–20:00', tel:'964 52 08 77', sponsored:false },
 ];
 
+// Lista básica de interacciones medicamentosas conocidas, solo para avisos orientativos
+// en esta demo (no sustituye criterio clínico real). Se compara por texto, sin distinguir mayúsculas.
+const INTERACCIONES_CONOCIDAS = [
+  { a:'enalapril', b:'espironolactona', nivel:'alta', texto:'Enalapril + Espironolactona: riesgo de exceso de potasio en sangre (hiperpotasemia). Conviene vigilar la analítica.' },
+  { a:'enalapril', b:'diclofenaco', nivel:'media', texto:'Enalapril + Diclofenaco: el antiinflamatorio puede reducir el efecto sobre la tensión y forzar el riñón.' },
+  { a:'enalapril', b:'ibuprofeno', nivel:'media', texto:'Enalapril + Ibuprofeno: el antiinflamatorio puede reducir el efecto sobre la tensión y forzar el riñón.' },
+  { a:'furosemida', b:'diclofenaco', nivel:'media', texto:'Furosemida + Diclofenaco: el antiinflamatorio puede reducir el efecto del diurético.' },
+  { a:'furosemida', b:'ibuprofeno', nivel:'media', texto:'Furosemida + Ibuprofeno: el antiinflamatorio puede reducir el efecto del diurético.' },
+  { a:'sulfato ferroso', b:'omeprazol', nivel:'baja', texto:'Hierro + Omeprazol: el protector gástrico puede reducir la absorción del hierro. Conviene separar las tomas.' },
+  { a:'bisoprolol', b:'diclofenaco', nivel:'baja', texto:'Bisoprolol + Diclofenaco: el antiinflamatorio puede reducir el efecto del betabloqueante sobre la tensión.' },
+];
+
 const DEFAULT_CITAS = [
   { fecha:'28 Jun 2026', fechaISO:'2026-06-28T09:00:00', hora:'09:00', paciente:'María López',   pacId:'PAC-00101', motivo:'Revisión general',    estado:'Confirmada' },
   { fecha:'28 Jun 2026', fechaISO:'2026-06-28T10:30:00', hora:'10:30', paciente:'Carlos Ruiz',   pacId:'PAC-00102', motivo:'Análisis de sangre',  estado:'Confirmada' },
