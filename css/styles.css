@@ -231,6 +231,7 @@ body.large-text td, body.large-text th { font-size:1rem; }
 .user-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; color:white; }
 .avatar-blue { background:var(--blue); }
 .avatar-green { background:var(--green); }
+.avatar-purple { background:var(--purple); }
 .user-info { text-align:right; }
 .user-name { font-size:.88rem; font-weight:700; }
 .user-role { font-size:.75rem; color:var(--gray-400); }

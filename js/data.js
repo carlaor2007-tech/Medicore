@@ -4,6 +4,8 @@ const USERS = {
   'luis@hospital.com': { pass:'1234', role:'medico',   name:'Luis Martín', title:'Dr.', esp:'Cardiología',       avatar:'LM' },
   'maria@email.com':   { pass:'1234', role:'paciente', name:'María López', pacId:'PAC-00101', avatar:'ML' },
   'carlos@email.com':  { pass:'1234', role:'paciente', name:'Carlos Ruiz', pacId:'PAC-00102', avatar:'CR' },
+  // Modo cuidador/familiar: cuenta vinculada de solo lectura a un paciente, sin compartir su contraseña.
+  'carmen@email.com':  { pass:'1234', role:'cuidador', name:'Carmen López', linkedPacId:'PAC-00101', parentesco:'Hija de María López', avatar:'CL' },
 };
 
 // ======== DATOS POR DEFECTO (semilla inicial para localStorage) ========

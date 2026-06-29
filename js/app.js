@@ -41,12 +41,15 @@ function openLogin(role) {
 function closeLogin() { document.getElementById('loginOverlay').classList.remove('show'); }
 function switchRole(role) {
   currentRole = role;
-  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#loginOverlay .role-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('roleBtn-'+role).classList.add('active');
   const hint = document.getElementById('demoHint');
-  hint.innerHTML = role === 'medico'
-    ? '<strong>Demo médico:</strong> ana@hospital.com / 1234<br><strong>Demo médico 2:</strong> luis@hospital.com / 1234'
-    : '<strong>Demo paciente:</strong> maria@email.com / 1234<br><strong>Demo paciente 2:</strong> carlos@email.com / 1234';
+  const hints = {
+    medico: '<strong>Demo médico:</strong> ana@hospital.com / 1234<br><strong>Demo médico 2:</strong> luis@hospital.com / 1234',
+    paciente: '<strong>Demo paciente:</strong> maria@email.com / 1234<br><strong>Demo paciente 2:</strong> carlos@email.com / 1234',
+    cuidador: '<strong>Demo familiar:</strong> carmen@email.com / 1234 <span style="color:var(--gray-400)">(vinculada a María López)</span>',
+  };
+  hint.innerHTML = hints[role] || '';
 }
 function doLogin() {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -75,9 +78,11 @@ function launchApp() {
   document.getElementById('app').classList.add('show');
   document.getElementById('chatFab').style.display = 'flex';
   document.getElementById('navUserName').textContent = (currentUser.title || '') + ' ' + currentUser.name;
-  document.getElementById('navUserRole').textContent = currentUser.role === 'medico' ? currentUser.esp : 'Paciente · ' + currentUser.pacId;
+  const roleLabels = { medico: currentUser.esp, paciente: 'Paciente · ' + currentUser.pacId, cuidador: 'Familiar · ' + currentUser.parentesco };
+  document.getElementById('navUserRole').textContent = roleLabels[currentUser.role] || '';
   document.getElementById('navAvatar').textContent = currentUser.avatar;
-  document.getElementById('navAvatar').className = 'user-avatar ' + (currentUser.role === 'medico' ? 'avatar-blue' : 'avatar-green');
+  const avatarClass = { medico: 'avatar-blue', paciente: 'avatar-green', cuidador: 'avatar-purple' };
+  document.getElementById('navAvatar').className = 'user-avatar ' + (avatarClass[currentUser.role] || 'avatar-green');
 
   buildSidebar();
 
@@ -90,6 +95,13 @@ function launchApp() {
     requestNotificationPermission();
     checkNewPatientRequests();
     setInterval(checkNewPatientRequests, 5 * 60 * 1000);
+  } else if (currentUser.role === 'cuidador') {
+    renderFamDashboard();
+    goTo('fam-dashboard');
+    requestNotificationPermission();
+    checkAppointmentReminders(currentUser.linkedPacId, true);
+    setInterval(() => checkAppointmentReminders(currentUser.linkedPacId, true), 5 * 60 * 1000);
+    setTimeout(() => announceNextAppointment(currentUser.linkedPacId), 900);
   } else {
     const p = PATIENTS.find(x => x.id === currentUser.pacId);
     document.getElementById('pacWelcome').textContent = 'Hola, ' + currentUser.name.split(' ')[0] + ' 👋';
@@ -97,9 +109,9 @@ function launchApp() {
     renderPatientMeds();
     goTo('pac-dashboard');
     requestNotificationPermission();
-    checkAppointmentReminders();
-    setInterval(checkAppointmentReminders, 5 * 60 * 1000);
-    setTimeout(announceNextAppointment, 900);
+    checkAppointmentReminders(currentUser.pacId);
+    setInterval(() => checkAppointmentReminders(currentUser.pacId), 5 * 60 * 1000);
+    setTimeout(() => announceNextAppointment(currentUser.pacId), 900);
   }
 }
 
@@ -109,8 +121,8 @@ function nextAppointmentFor(pacId) {
   const future = mine.find(c => new Date(c.fechaISO) > new Date());
   return future || mine[0] || null;
 }
-function announceNextAppointment() {
-  const next = nextAppointmentFor(currentUser.pacId);
+function announceNextAppointment(pacId) {
+  const next = nextAppointmentFor(pacId);
   toast(next ? `Próxima cita: ${next.fecha} ${next.hora}` : 'No tienes citas programadas', 'info');
 }
 
@@ -127,6 +139,11 @@ function buildSidebar() {
       <button class="nav-item" data-page="doc-informes" onclick="goTo('doc-informes')"><span class="icon">📋</span> Informes</button>
       <button class="nav-item" data-page="doc-nuevo-informe" onclick="goTo('doc-nuevo-informe')"><span class="icon">✏️</span> Nuevo informe</button>
       <button class="nav-item" data-page="doc-stats" onclick="goTo('doc-stats')"><span class="icon">📈</span> Estadísticas</button>`;
+  } else if (currentUser.role === 'cuidador') {
+    sidebar.innerHTML = `
+      <div class="sidebar-section">Modo Familiar</div>
+      <button class="nav-item" data-page="fam-dashboard" onclick="goTo('fam-dashboard')"><span class="icon">🏠</span> Inicio</button>
+      <button class="nav-item" data-page="pac-farmacias" onclick="openPharmacyFinder()"><span class="icon">📍</span> Farmacias cercanas</button>`;
   } else {
     sidebar.innerHTML = `
       <div class="sidebar-section">Mi Portal</div>
@@ -286,6 +303,38 @@ function renderPatientMeds() {
       </div>
       <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="openPharmacyFinder('${m.replace(/'/g, "\\'")}')">📍 Buscar dónde comprarlo</button>
     </div>`).join('');
+}
+
+// ======== MODO FAMILIAR / CUIDADOR (solo lectura) ========
+function renderFamDashboard() {
+  const pacId = currentUser.linkedPacId;
+  const p = PATIENTS.find(x => x.id === pacId);
+  if (!p) return;
+  document.getElementById('famWelcome').textContent = `👨‍👩‍👧 Hola, ${currentUser.name.split(' ')[0]}`;
+  document.getElementById('famPacienteNombre').textContent = p.name;
+
+  const next = nextAppointmentFor(pacId);
+  document.getElementById('famProximaCita').innerHTML = next
+    ? `<div class="appt-item"><div class="appt-time">${next.fecha}<br>${next.hora}</div><div class="appt-info"><div class="appt-name">${next.motivo}</div><div class="appt-detail">PAC-ID: ${pacId}</div></div><span class="tag tag-blue">${next.estado}</span></div>`
+    : '<p style="font-size:.85rem;color:var(--gray-400)">No hay citas programadas.</p>';
+
+  const medsContainer = document.getElementById('famMedsList');
+  medsContainer.innerHTML = p.meds.length ? p.meds.map(m => `
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:600;font-size:.9rem">${m}</div>
+        <span class="tag tag-green">Activo</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="openPharmacyFinder('${m.replace(/'/g, "\\'")}')">📍 Buscar dónde comprarlo</button>
+    </div>`).join('') : '<p style="font-size:.85rem;color:var(--gray-400)">Sin medicación activa registrada.</p>';
+
+  const informesPaciente = userInformes.filter(inf => inf.pacId === pacId);
+  document.getElementById('famInformesList').innerHTML = informesPaciente.length ? informesPaciente.map(inf => `
+    <div class="report-card">
+      <div class="r-header"><div class="r-title">${inf.tipo}</div><div class="r-date">${inf.fecha}</div></div>
+      <div class="r-text">${inf.diag}</div>
+      <div style="margin-top:8px;font-size:.8rem;color:var(--gray-600)">💊 ${inf.med} · Próxima revisión: ${inf.next}</div>
+    </div>`).join('') : '<p style="font-size:.85rem;color:var(--gray-400)">Sin informes registrados todavía.</p>';
 }
 
 // ======== INFORMES ========
@@ -781,16 +830,18 @@ function getNotifiedSet() {
 }
 function saveNotifiedSet(set) { localStorage.setItem('medicore_notified', JSON.stringify([...set])); }
 
-function checkAppointmentReminders() {
-  if (!currentUser || currentUser.role !== 'paciente') return;
+function checkAppointmentReminders(pacId, esFamiliar) {
+  if (!currentUser || (currentUser.role !== 'paciente' && currentUser.role !== 'cuidador')) return;
   const notified = getNotifiedSet();
   const now = new Date();
-  CITAS.filter(c => c.pacId === currentUser.pacId && c.fechaISO).forEach(c => {
+  CITAS.filter(c => c.pacId === pacId && c.fechaISO).forEach(c => {
     const citaDate = new Date(c.fechaISO);
     const hoursLeft = (citaDate - now) / 36e5;
-    const key = c.pacId + '|' + c.fechaISO;
+    const key = (esFamiliar ? 'fam-' : '') + c.pacId + '|' + c.fechaISO;
     if (hoursLeft > 0 && hoursLeft <= 24 && !notified.has(key)) {
-      const msg = `Recordatorio: tienes una cita el ${c.fecha} a las ${c.hora} (${c.motivo}). ¡Faltan menos de 24 horas!`;
+      const msg = esFamiliar
+        ? `Recordatorio: ${c.paciente} tiene una cita el ${c.fecha} a las ${c.hora} (${c.motivo}). ¡Faltan menos de 24 horas!`
+        : `Recordatorio: tienes una cita el ${c.fecha} a las ${c.hora} (${c.motivo}). ¡Faltan menos de 24 horas!`;
       if (Notification.permission === 'granted') {
         new Notification('📅 MediCore — Recordatorio de cita', { body: msg, icon: '' });
       }
