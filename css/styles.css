@@ -13,7 +13,7 @@
   --gray-50: #F8FAFC;
   --gray-100: #F1F5F9;
   --gray-200: #E2E8F0;
-  --gray-400: #94A3B8;
+  --gray-400: #64748B;
   --gray-600: #475569;
   --gray-800: #1E293B;
   --white: #FFFFFF;
@@ -496,4 +496,11 @@ mark.hl { background:#FDE68A; color:#92400E; border-radius:3px; padding:0 2px; }
   .modal { padding:24px; }
   .pharm-icon-box { height:100px; }
   .pharm-icon-box.detail { height:160px; }
+}
+
+/* ===== ACCESIBILIDAD: FOCO VISIBLE PARA NAVEGACIÓN POR TECLADO ===== */
+.btn:focus-visible, .nav-item:focus-visible, .chat-chip:focus-visible,
+.role-btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
 }

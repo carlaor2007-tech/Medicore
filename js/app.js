@@ -118,6 +118,7 @@ function launchApp() {
     renderPatientTable(PATIENTS);
     renderInformes();
     renderCitasTable();
+    renderDocStats();
     goTo('doc-dashboard');
     requestNotificationPermission();
     checkNewPatientRequests();
@@ -199,6 +200,7 @@ function goTo(page) {
   closeSidebarMobile();
   if (page === 'doc-stats') renderStatsCharts();
   if (page === 'doc-citas') clearNewCitasFlag();
+  if (page === 'doc-dashboard' && currentUser?.role === 'medico') renderDocStats();
 }
 
 // ======== PATIENTS TABLE ========
@@ -228,7 +230,7 @@ function filterPatients(v) {
   const lc = q.toLowerCase();
   const filtered = PATIENTS.filter(p => p.name.toLowerCase().includes(lc) || p.id.toLowerCase().includes(lc) || p.diag.toLowerCase().includes(lc));
   const statusMap = { activo:'tag-green', seguimiento:'tag-amber', alta:'tag-blue' };
-  document.getElementById('patTableBody').innerHTML = filtered.map(p => `
+  document.getElementById('patTableBody').innerHTML = filtered.length ? filtered.map(p => `
     <tr>
       <td><div style="display:flex;align-items:center;gap:10px">
         <div class="user-avatar" style="background:${p.color};width:32px;height:32px;font-size:.75rem;flex-shrink:0">${p.initials}</div>
@@ -240,7 +242,7 @@ function filterPatients(v) {
       <td>${p.lastVisit}</td>
       <td><span class="tag ${statusMap[p.status]||'tag-gray'}">${p.status}</span></td>
       <td><button class="btn btn-ghost btn-sm" onclick="openPatient('${p.id}')">Ver ficha</button></td>
-    </tr>`).join('');
+    </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px">Sin resultados para "' + q + '".</td></tr>';
 }
 
 // ======== PATIENT DETAIL ========
@@ -296,6 +298,13 @@ function interactionsBannerHtml(medsList) {
     <div style="font-weight:700;font-size:.85rem;color:var(--red);margin-bottom:6px">⚠️ Posibles interacciones detectadas</div>
     ${found.map(f => `<div style="font-size:.8rem;color:${nivelColor[f.nivel]};margin-bottom:4px">• ${f.texto}</div>`).join('')}
   </div>`;
+}
+
+// Refresca cualquier vista (paciente o familiar vinculado) que esté mostrando la medicación de este paciente.
+function refreshMedsViewsFor(pacId) {
+  if (!currentUser) return;
+  if (currentUser.role === 'paciente' && currentUser.pacId === pacId) renderPatientMeds();
+  if (currentUser.role === 'cuidador' && currentUser.linkedPacId === pacId) renderFamDashboard();
 }
 
 // ======== INFORMES EN LENGUAJE SENCILLO ========
@@ -365,7 +374,7 @@ function editMed(i) {
   p.meds[i] = limpio;
   persistPatients();
   renderFichaMedicacion(p);
-  if (currentUser?.role === 'paciente' && currentUser.pacId === p.id) renderPatientMeds();
+  refreshMedsViewsFor(p.id);
   toast('Medicación actualizada');
 }
 function deleteMed(i) {
@@ -375,7 +384,7 @@ function deleteMed(i) {
   p.meds.splice(i, 1);
   persistPatients();
   renderFichaMedicacion(p);
-  if (currentUser?.role === 'paciente' && currentUser.pacId === p.id) renderPatientMeds();
+  refreshMedsViewsFor(p.id);
   toast('Medicación eliminada');
 }
 
@@ -434,7 +443,7 @@ function renderFamDashboard() {
 
 // ======== INFORMES ========
 function renderInformes() {
-  document.getElementById('listaInformes').innerHTML = userInformes.map(inf => `
+  document.getElementById('listaInformes').innerHTML = userInformes.length ? userInformes.map(inf => `
     <div class="report-card">
       <div class="r-header">
         <div class="r-title">${inf.tipo}</div>
@@ -445,7 +454,7 @@ function renderInformes() {
       <div style="margin-top:8px;font-size:.8rem;color:var(--gray-600)">💊 ${inf.med} · Próxima revisión: ${inf.next}</div>
       <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="toggleSimpleExplain(this)">🗣️ Explicar en sencillo</button>
       <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="downloadReportPDF(this)">📄 Descargar PDF</button>
-    </div>`).join('');
+    </div>`).join('') : '<p style="font-size:.85rem;color:var(--gray-400)">Aún no has emitido ningún informe.</p>';
 }
 function autoFillPatient(v) {
   const p = PATIENTS.find(x => x.id === v.toUpperCase());
@@ -471,7 +480,7 @@ function guardarInforme() {
       nuevasMeds++;
     });
     if (nuevasMeds) persistPatients();
-    if (currentUser?.role === 'paciente' && currentUser.pacId === pacId) renderPatientMeds();
+    refreshMedsViewsFor(pacId);
   }
   let msg = 'Informe guardado correctamente';
   if (nuevasMeds) msg += ' · medicación añadida a la ficha del paciente';
@@ -530,6 +539,22 @@ function renderCitasTable() {
       <td>${actionMap[c.estado] ? `<button class="btn btn-ghost btn-sm" onclick="advanceCita(${i})">${actionMap[c.estado]}</button>` : '—'}</td>
     </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:24px">No hay citas en este filtro.</td></tr>';
 }
+function renderDocStats() {
+  const hoy = CITAS.filter(c => citaCategoria(c) === 'hoy');
+  const pendientesHoy = hoy.filter(c => c.estado === 'Pendiente').length;
+  const now = new Date();
+  const en7dias = new Date(now.getTime() + 7 * 24 * 3600 * 1000);
+  const citasPendientes7d = CITAS.filter(c => {
+    if (!c.fechaISO || (c.estado !== 'Pendiente' && c.estado !== 'Programada')) return false;
+    const f = new Date(c.fechaISO);
+    return f >= now && f <= en7dias;
+  }).length;
+  document.getElementById('statPacientesHoy').textContent = hoy.length;
+  document.getElementById('statPacientesHoySub').textContent = pendientesHoy ? `${pendientesHoy} pendientes` : 'todas gestionadas';
+  document.getElementById('statTotalPacientes').textContent = PATIENTS.length;
+  document.getElementById('statInformes').textContent = userInformes.length;
+  document.getElementById('statCitasPendientes').textContent = citasPendientes7d;
+}
 function clearNewCitasFlag() {
   let changed = false;
   CITAS.forEach(c => { if (c.nueva) { c.nueva = false; changed = true; } });
@@ -540,7 +565,7 @@ function checkNewPatientRequests() {
   const nuevas = CITAS.filter(c => c.nueva);
   if (!nuevas.length) return;
   toast(`📅 Tienes ${nuevas.length} cita${nuevas.length > 1 ? 's' : ''} nueva${nuevas.length > 1 ? 's' : ''} solicitada${nuevas.length > 1 ? 's' : ''} por pacientes`, 'info');
-  if (Notification.permission === 'granted') {
+  if ('Notification' in window && Notification.permission === 'granted') {
     nuevas.forEach(c => new Notification('📅 MediCore — Nueva cita solicitada', { body: `${c.paciente} solicita cita: ${c.motivo} (${c.fecha} ${c.hora})` }));
   }
   const navItem = document.querySelector('#sidebar [data-page="doc-citas"]');
@@ -942,7 +967,7 @@ function checkAppointmentReminders(pacId, esFamiliar) {
       const msg = esFamiliar
         ? `Recordatorio: ${c.paciente} tiene una cita el ${c.fecha} a las ${c.hora} (${c.motivo}). ¡Faltan menos de 24 horas!`
         : `Recordatorio: tienes una cita el ${c.fecha} a las ${c.hora} (${c.motivo}). ¡Faltan menos de 24 horas!`;
-      if (Notification.permission === 'granted') {
+      if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('📅 MediCore — Recordatorio de cita', { body: msg, icon: '' });
       }
       toast(msg, 'info');
